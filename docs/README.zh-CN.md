@@ -2,6 +2,8 @@
 
 Xmanmobi MCP 让 Codex 等兼容 MCP 的 AI 客户端读取您有权限查看的 Google Ads 和 Facebook Ads 数据，并完成广告表现分析。当前所有工具均为只读，不会创建、修改、暂停或删除广告。
 
+公开仓库同时提供 MCP 网关源码、OAuth 2.1 参考实现，以及投放诊断、素材分析和数据质量审计 Skills。生产环境的客户数据、广告平台 Token 和 BI 业务 API 不会公开。
+
 ## 使用前准备
 
 您需要：
@@ -69,6 +71,14 @@ codex mcp list
 ```text
 检查广告数据质量，找出未绑定账户、同步延迟和缺失的转化价值。
 ```
+
+## 专业 Skills
+
+- `ad-performance-diagnosis`：按指标链路拆解问题并输出优化 SOP。
+- `ad-creative-analysis`：评估素材证据、疲劳信号并生成受控测试计划。
+- `ad-data-quality-audit`：检查权限、绑定、同步新鲜度、完整性和归因质量。
+
+这些 Skills 不使用适用于所有客户的固定 CPA/ROAS 标准；应优先使用客户实际 KPI，并在样本不足时明确说明。
 
 更多提示词见 [examples.md](examples.md)。
 

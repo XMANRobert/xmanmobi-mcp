@@ -1,0 +1,12 @@
+interface:
+  display_name: "Ad creative analysis"
+  short_description: "Evaluate creatives and design tests"
+  brand_color: "#086F83"
+  default_prompt: "Use $ad-creative-analysis to evaluate my recent creatives and propose a controlled test plan."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "xmanmobi"
+      description: "Read-only Xmanmobi advertising analytics tools"
+      transport: "streamable_http"
+      url: "https://ai.xmanmobi.com/mcp"

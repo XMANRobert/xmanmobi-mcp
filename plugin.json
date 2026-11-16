@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "xmanmobi",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Read-only Google and Facebook advertising analytics for authorized Xmanmobi accounts.",
   "author": {
     "name": "Advan Hong Kong Technology Limited",
@@ -98,7 +98,7 @@
         "commerce_description": "Xmanmobi does not sell products or process payments through this plugin."
       },
       "publication": {
-        "release_notes": "Initial public release with 15 read-only tools for authorized Google Ads and Facebook Ads reporting, performance analysis, conversion analysis, and data-quality review."
+        "release_notes": "Adds the public MCP gateway source, OAuth 2.1 reference implementation, and professional skills for performance diagnosis, creative analysis, and data-quality auditing. The 15 hosted tools remain read-only."
       }
     }
   }

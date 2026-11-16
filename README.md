@@ -4,6 +4,8 @@
 
 Xmanmobi is a read-only MCP integration for Google Ads and Meta Ads analytics. It lets compatible AI clients inspect advertising performance, compare reporting periods, analyze creatives and search terms, review conversion funnels, and check data quality within the connected user's authorized customer scope.
 
+This repository includes the MCP gateway source, OAuth reference implementation, plugin manifests, and domain-specific advertising analysis skills. See [Architecture and trust boundaries](docs/architecture.md).
+
 ## What it can do
 
 - Summarize Google Ads and Meta Ads performance.
@@ -65,6 +67,15 @@ Check my advertising data quality and identify stale synchronization or missing 
 
 More examples are available in [docs/examples.md](docs/examples.md).
 
+## Professional skills
+
+- `ad-performance-diagnosis`: metric decomposition, prioritization, and optimization SOP.
+- `ad-creative-analysis`: creative evidence grading, fatigue review, and controlled test planning.
+- `ad-data-quality-audit`: access, freshness, completeness, consistency, and attribution checks.
+- `get-started`: connection and first-analysis workflow.
+
+The methods avoid universal CPA/ROAS thresholds. They use the customer's objective when available and explicitly report insufficient evidence.
+
 ## Available tools
 
 | Tool | Purpose |
@@ -91,10 +102,18 @@ This public repository contains:
 
 - Plugin and MCP manifests.
 - The onboarding skill.
+- Three advertising methodology skills with diagnostic rules and SOPs.
+- TypeScript MCP gateway source and smoke tests.
+- A ThinkPHP OAuth 2.1 + PKCE reference implementation.
 - Public documentation and examples.
 - Brand assets used by the plugin listing.
 
-The hosted service implementation, database schema, customer data, credentials, and internal deployment configuration are intentionally not included.
+The private BI business API, advertising-platform credentials, customer data, and internal deployment configuration are intentionally not included.
+
+## Roadmap and review
+
+- [Write-action security design](docs/write-actions-roadmap.md)
+- [Review account, simulated data, test report, and recording checklist](docs/review-readiness.md)
 
 ## Privacy and security
 

@@ -1,0 +1,12 @@
+interface:
+  display_name: "Ad performance diagnosis"
+  short_description: "Diagnose Google and Meta campaign results"
+  brand_color: "#086F83"
+  default_prompt: "Use $ad-performance-diagnosis to diagnose my recent advertising performance and prioritize evidence-backed next actions."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "xmanmobi"
+      description: "Read-only Xmanmobi advertising analytics tools"
+      transport: "streamable_http"
+      url: "https://ai.xmanmobi.com/mcp"
