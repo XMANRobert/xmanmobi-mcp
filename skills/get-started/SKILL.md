@@ -14,4 +14,4 @@ Help the user connect their Xmanmobi account and confirm that authorized adverti
 5. Summarize spend, impressions, clicks, conversions, conversion value, and data freshness. Clearly distinguish missing or stale data from true zero values.
 6. Offer a relevant next read-only analysis such as campaign performance, period comparison, creative analysis, search-term analysis, conversion funnel review, or data-quality checks.
 
-All Xmanmobi tools in this plugin are read-only. Do not claim that a campaign, ad, keyword, budget, account, or report was created, edited, paused, published, or deleted. Base conclusions on tool results, preserve the user's customer permissions, and state when the requested data is unavailable.
+Analysis tools are read-only. Budget and status changes are available only through the separate propose-and-confirm workflow in `ad-change-management`; never infer confirmation or claim that a proposal changed an advertising platform. Base conclusions on tool results, preserve the user's customer permissions, and state when requested data is unavailable.

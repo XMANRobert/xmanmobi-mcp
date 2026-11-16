@@ -13,10 +13,10 @@ const protectedResource = {
   resource: 'https://ai.xmanmobi.com/mcp',
   authorization_servers: ['https://bis.joinaws.xyz'],
   bearer_methods_supported: ['header'],
-  scopes_supported: ['ad_diagnosis:read'],
+  scopes_supported: ['ad_diagnosis:read', 'ad_management:write'],
 };
 
-app.get('/health', (_req, res) => res.json({ status: 'ok', service: 'xmanmobi-mcp', version: '1.0.0' }));
+app.get('/health', (_req, res) => res.json({ status: 'ok', service: 'xmanmobi-mcp', version: '1.1.0' }));
 app.get('/.well-known/oauth-protected-resource', (_req, res) => res.json(protectedResource));
 app.get('/.well-known/oauth-protected-resource/mcp', (_req, res) => res.json(protectedResource));
 app.use('/mcp', bearerAuth);
@@ -48,13 +48,24 @@ function bearerAuth(req: AuthenticatedRequest, res: Response, next: NextFunction
   if (!token) {
     res.setHeader(
       'WWW-Authenticate',
-      'Bearer realm="Xmanmobi MCP", resource_metadata="https://ai.xmanmobi.com/.well-known/oauth-protected-resource/mcp", scope="ad_diagnosis:read"',
+      'Bearer realm="Xmanmobi MCP", resource_metadata="https://ai.xmanmobi.com/.well-known/oauth-protected-resource/mcp", scope="ad_diagnosis:read ad_management:write"',
     );
     res.status(401).json({ jsonrpc: '2.0', error: { code: -32001, message: 'Bearer token required' }, id: null });
     return;
   }
-  req.auth = { token, clientId: 'xmanmobi-user', scopes: [] };
+  req.auth = { token, clientId: 'xmanmobi-user', scopes: tokenScopes(token) };
   next();
+}
+
+function tokenScopes(token: string): string[] {
+  try {
+    const payload = token.split('.')[1];
+    if (!payload) return [];
+    const decoded = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8')) as { scope?: unknown };
+    return typeof decoded.scope === 'string' ? decoded.scope.split(/\s+/).filter(Boolean) : [];
+  } catch {
+    return [];
+  }
 }
 
 function methodNotAllowed(_req: Request, res: Response) {

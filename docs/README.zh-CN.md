@@ -1,6 +1,6 @@
 # Xmanmobi MCP 使用教程
 
-Xmanmobi MCP 让 Codex 等兼容 MCP 的 AI 客户端读取您有权限查看的 Google Ads 和 Facebook Ads 数据，并完成广告表现分析。当前所有工具均为只读，不会创建、修改、暂停或删除广告。
+Xmanmobi MCP 让 Codex 等兼容 MCP 的 AI 客户端读取您有权限查看的 Google Ads 和 Facebook Ads 数据，并完成广告表现分析。15 个分析工具保持只读；另外提供预算和启停状态的受控修改工具，必须先生成提案，再由用户明确确认，执行后写入审计日志。
 
 公开仓库同时提供 MCP 网关源码、OAuth 2.1 参考实现，以及投放诊断、素材分析和数据质量审计 Skills。生产环境的客户数据、广告平台 Token 和 BI 业务 API 不会公开。
 
@@ -28,7 +28,7 @@ auth = "oauth"
 codex mcp login xmanmobi
 ```
 
-浏览器会自动打开 Xmanmobi 授权页。登录后确认只读权限并允许访问。不要把密码、Access Token、Refresh Token 或授权码发给 AI。
+浏览器会自动打开 Xmanmobi 授权页。登录后分别检查读取权限和广告修改权限。不要把密码、Access Token、Refresh Token 或授权码发给 AI。
 
 连接完成后可以执行：
 
@@ -77,6 +77,7 @@ codex mcp list
 - `ad-performance-diagnosis`：按指标链路拆解问题并输出优化 SOP。
 - `ad-creative-analysis`：评估素材证据、疲劳信号并生成受控测试计划。
 - `ad-data-quality-audit`：检查权限、绑定、同步新鲜度、完整性和归因质量。
+- `ad-change-management`：安全生成修改提案、等待明确确认、执行并核对审计记录。
 
 这些 Skills 不使用适用于所有客户的固定 CPA/ROAS 标准；应优先使用客户实际 KPI，并在样本不足时明确说明。
 
@@ -94,7 +95,7 @@ codex mcp list
 
 ### 能直接暂停或修改广告吗？
 
-不能。公开 MCP 工具全部是只读工具。AI 可以给出分析建议，但不会执行广告账户写操作。
+只支持已授权账户的日预算和启停状态。AI 必须先展示资源、原值、新值和风险，等待用户在后续消息中明确确认后才能执行。创建、删除、受众、素材、关键词、账单和无确认的批量自动操作仍不支持。
 
 ### 登录失败怎么办？
 

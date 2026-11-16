@@ -1,6 +1,6 @@
 # MCP server source
 
-This directory contains the source for the public Xmanmobi MCP gateway. The gateway exposes 15 read-only tools and forwards authenticated requests to the hosted Xmanmobi API.
+This directory contains the source for the public Xmanmobi MCP gateway. The gateway exposes 15 read-only analysis tools plus three guarded proposal, execution, and audit tools, and forwards authenticated requests to the hosted Xmanmobi API.
 
 The business API, advertising-platform credentials, and customer database are not part of this repository. They remain server-side and are protected by Xmanmobi authorization rules.
 

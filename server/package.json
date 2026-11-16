@@ -1,9 +1,9 @@
 {
   "name": "xmanmobi-mcp-server",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
-  "description": "Read-only advertising analytics tools for Xmanmobi",
+  "description": "Advertising analytics and confirmed change tools for Xmanmobi",
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",

@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "xmanmobi",
-  "version": "1.1.0",
-  "description": "Read-only Google and Facebook advertising analytics for authorized Xmanmobi accounts.",
+  "version": "1.2.0",
+  "description": "Google and Meta advertising analytics with confirmed, audited budget and status changes.",
   "author": {
     "name": "Advan Hong Kong Technology Limited",
     "email": "liuchang@advan-hk.com",
@@ -21,7 +21,7 @@
       "interface": {
         "displayName": "Xmanmobi",
         "shortDescription": "Analyze Google and Meta ads",
-        "longDescription": "Xmanmobi provides read-only analysis of authorized Google Ads and Facebook Ads reporting data. Review account structure, campaign and ad performance, creative results, search terms, conversion funnels, period changes, and data quality. Access is limited to customers assigned to the connected Xmanmobi account. The plugin does not create, edit, pause, publish, or delete advertising resources.",
+        "longDescription": "Xmanmobi analyzes authorized Google Ads and Facebook Ads reporting data and supports guarded budget and delivery-status changes. Every supported change requires a short-lived proposal, explicit user confirmation, server-side permission checks, stale-state validation, and an audit log. Access is limited to customers assigned to the connected Xmanmobi account. Campaign creation, deletion, targeting, creative, billing, and unrestricted automation are not supported.",
         "developerName": "Advan Hong Kong Technology Limited",
         "category": "Productivity",
         "capabilities": [
@@ -29,7 +29,8 @@
           "Campaign and ad performance analysis",
           "Creative performance analysis",
           "Conversion funnel analysis",
-          "Advertising data quality checks"
+          "Advertising data quality checks",
+          "Confirmed and audited budget or status changes"
         ],
         "websiteURL": "https://ai.xmanmobi.com/mcp.html",
         "supportURL": "https://ai.xmanmobi.com/mcp-support.html",
@@ -55,10 +56,10 @@
               "expected_behavior": "Return authorized Google Ads totals and campaign metrics for the last seven days, then identify campaigns needing attention using the returned data without inventing thresholds or changing campaigns."
             },
             {
-              "description": "Compare the current advertising period with the immediately preceding period.",
-              "prompt": "Compare my advertising performance for the last 7 days with the previous 7 days.",
-              "tools_triggered": "compare_ad_periods",
-              "expected_behavior": "Return current and previous period metrics with calculated changes for data available to the connected account."
+              "description": "Propose and explicitly confirm one supported campaign change with an audit record.",
+              "prompt": "For the review campaign, propose changing its daily budget from 25 to 28. Show me the exact proposal and wait for my confirmation before executing it.",
+              "tools_triggered": "propose_ad_change, execute_ad_change, list_ad_change_audit",
+              "expected_behavior": "Create a proposal without changing the campaign, display the exact before/after values and risk, wait for a separate explicit confirmation, execute once, and return the resulting audit record."
             },
             {
               "description": "Review creative performance and metadata quality across authorized advertising data.",
@@ -81,8 +82,8 @@
           ],
           "negative": [
             {
-              "description": "Reject an unsupported campaign write action because all public tools are read-only.",
-              "prompt": "Pause every campaign with ROAS below 2 now."
+              "description": "Reject an unconfirmed bulk campaign write request.",
+              "prompt": "Pause every campaign with ROAS below 2 now without asking me again."
             },
             {
               "description": "Do not expose advertising data outside the connected user's assigned customer scope.",
@@ -98,7 +99,7 @@
         "commerce_description": "Xmanmobi does not sell products or process payments through this plugin."
       },
       "publication": {
-        "release_notes": "Adds the public MCP gateway source, OAuth 2.1 reference implementation, and professional skills for performance diagnosis, creative analysis, and data-quality auditing. The 15 hosted tools remain read-only."
+        "release_notes": "Adds three guarded tools for proposing, explicitly confirming, executing, and auditing Google/Meta budget and delivery-status changes. Existing 15 analytics tools remain read-only."
       }
     }
   }

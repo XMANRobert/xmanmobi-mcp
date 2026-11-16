@@ -16,7 +16,8 @@
             "registrationUrl": "https://bis.joinaws.xyz/oauth/register",
             "resource": "https://ai.xmanmobi.com/mcp",
             "baseScopes": [
-              "ad_diagnosis:read"
+              "ad_diagnosis:read",
+              "ad_management:write"
             ]
           }
         }

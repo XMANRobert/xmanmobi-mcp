@@ -2,7 +2,7 @@
 
 [中文文档](docs/README.zh-CN.md) | [Website](https://ai.xmanmobi.com/mcp.html) | [Support](https://ai.xmanmobi.com/mcp-support.html)
 
-Xmanmobi is a read-only MCP integration for Google Ads and Meta Ads analytics. It lets compatible AI clients inspect advertising performance, compare reporting periods, analyze creatives and search terms, review conversion funnels, and check data quality within the connected user's authorized customer scope.
+Xmanmobi is an MCP integration for Google Ads and Meta Ads analytics plus guarded advertising changes. It lets compatible AI clients inspect performance and, when separately authorized, propose and execute supported budget or delivery-status changes after explicit user confirmation.
 
 This repository includes the MCP gateway source, OAuth reference implementation, plugin manifests, and domain-specific advertising analysis skills. See [Architecture and trust boundaries](docs/architecture.md).
 
@@ -15,7 +15,7 @@ This repository includes the MCP gateway source, OAuth reference implementation,
 - Review conversion funnels and reporting freshness.
 - Diagnose campaign performance without changing advertising resources.
 
-All 15 tools are read-only. Xmanmobi cannot create, edit, pause, publish, or delete campaigns through this plugin.
+The 15 analysis tools are read-only. Three guarded tools handle proposals, confirmed execution, and audit history. Campaign creation, deletion, targeting, creative, billing, and unrestricted automation are not supported.
 
 ## Connect
 
@@ -41,7 +41,7 @@ Then authenticate:
 codex mcp login xmanmobi
 ```
 
-Your browser will open the Xmanmobi OAuth page. Sign in and approve the read-only advertising analytics permission. Never paste passwords, access tokens, refresh tokens, or authorization codes into a chat.
+Your browser will open the Xmanmobi OAuth page. Sign in and review the separate read and advertising-management permissions. Never paste passwords, access tokens, refresh tokens, or authorization codes into a chat.
 
 ### Plugin package
 
@@ -73,6 +73,7 @@ More examples are available in [docs/examples.md](docs/examples.md).
 - `ad-creative-analysis`: creative evidence grading, fatigue review, and controlled test planning.
 - `ad-data-quality-audit`: access, freshness, completeness, consistency, and attribution checks.
 - `get-started`: connection and first-analysis workflow.
+- `ad-change-management`: guarded proposal, confirmation, execution, and audit workflow.
 
 The methods avoid universal CPA/ROAS thresholds. They use the customer's objective when available and explicitly report insufficient evidence.
 
@@ -95,6 +96,9 @@ The methods avoid universal CPA/ROAS thresholds. They use the customer's objecti
 | `compare_ad_periods` | Compare two reporting periods |
 | `diagnose_ad_campaigns` | Diagnose campaign performance |
 | `check_data_quality` | Check bindings, freshness, and missing values |
+| `propose_ad_change` | Create a short-lived budget/status proposal without changing the platform |
+| `execute_ad_change` | Execute one explicitly confirmed proposal |
+| `list_ad_change_audit` | Review proposal, rejection, execution, and before/after audit records |
 
 ## Repository scope
 
@@ -105,6 +109,7 @@ This public repository contains:
 - Three advertising methodology skills with diagnostic rules and SOPs.
 - TypeScript MCP gateway source and smoke tests.
 - A ThinkPHP OAuth 2.1 + PKCE reference implementation.
+- A guarded ThinkPHP advertising-change reference and audit schema.
 - Public documentation and examples.
 - Brand assets used by the plugin listing.
 
@@ -119,7 +124,7 @@ The private BI business API, advertising-platform credentials, customer data, an
 
 - OAuth is used for user authorization.
 - Tool results are restricted to customers assigned to the connected Xmanmobi account.
-- The public tools are read-only.
+- Analysis tools are read-only; write tools require a separate scope, role permission, explicit confirmation, and audit record.
 - Do not report vulnerabilities in public issues. Follow [SECURITY.md](SECURITY.md).
 
 See the [Privacy Policy](https://ai.xmanmobi.com/mcp-privacy.html) and [Terms of Service](https://ai.xmanmobi.com/mcp-terms.html).

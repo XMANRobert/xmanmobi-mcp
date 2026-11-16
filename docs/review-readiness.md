@@ -40,10 +40,11 @@ Also test expired tokens, unassigned customer IDs, invalid dates, empty data, an
 Record one continuous walkthrough showing:
 
 1. Connecting the production MCP URL.
-2. OAuth login and the read-only consent text.
+2. OAuth login and the separate read/write consent text.
 3. Customer discovery and access scope.
 4. The five positive review cases.
 5. The three negative cases.
-6. Evidence that write requests are refused.
+6. One proposal that visibly does not change the platform, followed by a separate explicit confirmation, execution, and audit lookup.
+7. Evidence that unconfirmed, over-limit, unsupported, and cross-customer write requests are refused.
 
 Keep the recording URL accessible to reviewers without requesting access. Do not expose passwords, browser-stored tokens, real customer names, or developer tools containing authorization headers.

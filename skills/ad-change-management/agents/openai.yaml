@@ -1,0 +1,12 @@
+interface:
+  display_name: "Ad change management"
+  short_description: "Confirm and audit budget or status changes"
+  brand_color: "#086F83"
+  default_prompt: "Use $ad-change-management to safely propose an advertising change and wait for my explicit confirmation before execution."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "xmanmobi"
+      description: "Xmanmobi advertising analysis and confirmed change tools"
+      transport: "streamable_http"
+      url: "https://ai.xmanmobi.com/mcp"

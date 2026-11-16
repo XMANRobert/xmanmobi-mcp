@@ -283,7 +283,77 @@ export function createXmanmobiServer(defaultToken?: string) {
     },
   }, runReadOnly('/ai-tools/data-quality'));
 
+  server.registerTool('propose_ad_change', {
+    title: 'Propose an advertising change',
+    description: 'Create an audited, short-lived proposal to change an authorized Google or Facebook advertising resource. This does not modify the platform. Show the exact proposal to the user and obtain explicit confirmation before calling execute_ad_change.',
+    annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+    inputSchema: {
+      platform: z.enum(['google', 'facebook']).describe('Advertising platform containing the resource.'),
+      resource_type: z.enum(['campaign', 'adset', 'ad']).default('campaign').describe('Local BI resource type. Google currently supports campaign only.'),
+      resource_id: z.coerce.number().int().positive().describe('Local Xmanmobi BI resource ID returned by an authorized listing or performance tool.'),
+      action_type: z.enum(['set_daily_budget', 'set_status']).describe('Narrow change to propose. Individual ads support status only.'),
+      new_value: z.union([z.string(), z.number()]).describe('New daily budget in account currency, or ENABLED/ACTIVE/PAUSED status.'),
+      reason: z.string().min(1).max(1000).describe('Human-readable reason for the proposed change.'),
+      evidence: z.record(z.unknown()).optional().describe('Optional metrics and analysis supporting the proposal; do not include credentials or personal data.'),
+    },
+  }, async (input, extra) => {
+    const token = extra.authInfo?.token || defaultToken?.trim(); if (!token) return toolError('A Xmanmobi Bearer token is required.');
+    return callAdvanbiJson('/ai-tools/ad-actions/propose', 'POST', input, token);
+  });
+
+  server.registerTool('execute_ad_change', {
+    title: 'Execute a confirmed advertising change',
+    description: 'Execute one previously proposed advertising change after the user explicitly confirms the exact platform, resource, old value, and new value. Requires the short-lived confirmation token and records an audit log.',
+    annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: true },
+    inputSchema: {
+      proposal_id: z.coerce.number().int().positive().describe('Proposal ID returned by propose_ad_change.'),
+      confirmation_token: z.string().min(20).describe('Short-lived confirmation token returned by propose_ad_change. Never request or accept an OAuth access token here.'),
+      confirm: z.literal(true).describe('Must be true only after the user explicitly confirms the exact proposed change.'),
+    },
+  }, async (input, extra) => {
+    const token = extra.authInfo?.token || defaultToken?.trim(); if (!token) return toolError('A Xmanmobi Bearer token is required.');
+    return callAdvanbiJson('/ai-tools/ad-actions/execute', 'POST', input, token);
+  });
+
+  server.registerTool('list_ad_change_audit', {
+    title: 'List advertising change audit records',
+    description: 'List the connected user\'s recent Xmanmobi advertising change proposals, rejections, executions, before/after values, and outcomes.',
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+    inputSchema: {
+      platform: z.enum(['google', 'facebook']).optional().describe('Optional platform filter.'),
+      resource_type: z.enum(['campaign', 'adset', 'ad']).optional().describe('Optional resource-type filter.'),
+      status: z.enum(['success', 'failed', 'rejected']).optional().describe('Optional audit outcome filter.'),
+      limit: z.coerce.number().int().min(1).max(100).default(30).describe('Maximum audit records to return.'),
+    },
+  }, async (input, extra) => {
+    const token = extra.authInfo?.token || defaultToken?.trim(); if (!token) return toolError('A Xmanmobi Bearer token is required.');
+    return callAdvanbi('/ai-tools/ad-actions/audit-logs', input, token);
+  });
+
   return server;
+}
+
+async function callAdvanbiJson(path: string, method: 'POST', input: Record<string, unknown>, token: string) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), requestTimeoutMs);
+  try {
+    const response = await fetch(`${apiUrl}${path}`, {
+      method,
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify(input),
+      signal: controller.signal,
+    });
+    const body = await readResponse(response);
+    if (!response.ok) return toolError(`Xmanmobi API request failed (${response.status} ${response.statusText}).`, body);
+    return { content: [{ type: 'text' as const, text: JSON.stringify(body, null, 2) }], structuredContent: normalizeStructuredContent(body) };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return toolError(error instanceof Error && error.name === 'AbortError'
+      ? `Xmanmobi API request timed out after ${requestTimeoutMs} ms.`
+      : `Unable to reach the Xmanmobi API: ${message}`);
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 async function callAdvanbi(path: string, input: Record<string, unknown>, token: string) {

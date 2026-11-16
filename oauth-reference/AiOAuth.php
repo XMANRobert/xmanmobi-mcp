@@ -10,7 +10,8 @@ use think\Request;
 /** OAuth 2.1 authorization server for the Xmanmobi MCP connection. */
 class AiOAuth
 {
-    private const SCOPE = 'ad_diagnosis:read';
+    private const READ_SCOPE = 'ad_diagnosis:read';
+    private const WRITE_SCOPE = 'ad_management:write';
     private const CODE_TTL = 600;
     private const ACCESS_TTL = 3600;
     private const REFRESH_TTL = 2592000;
@@ -21,7 +22,7 @@ class AiOAuth
             'resource' => 'https://ai.xmanmobi.com/mcp',
             'authorization_servers' => ['https://bis.joinaws.xyz'],
             'bearer_methods_supported' => ['header'],
-            'scopes_supported' => [self::SCOPE],
+            'scopes_supported' => [self::READ_SCOPE, self::WRITE_SCOPE],
         ]);
     }
 
@@ -36,7 +37,7 @@ class AiOAuth
             'grant_types_supported' => ['authorization_code', 'refresh_token'],
             'code_challenge_methods_supported' => ['S256'],
             'token_endpoint_auth_methods_supported' => ['none'],
-            'scopes_supported' => [self::SCOPE],
+            'scopes_supported' => [self::READ_SCOPE, self::WRITE_SCOPE],
         ]);
     }
 
@@ -100,6 +101,11 @@ class AiOAuth
         if (!$user || !password_verify($password, (string)$user->password)) {
             return response($this->authorizationPage($params, $client, '用户名或密码错误'), 401, ['Content-Type' => 'text/html; charset=utf-8']);
         }
+        $requestedScopes = $validation['scopes'];
+        if (in_array(self::WRITE_SCOPE, $requestedScopes, true) && !$this->userCanWriteAds((int)$user->id)) {
+            return response($this->authorizationPage($params, $client, '当前账号没有 AI 修改广告权限'), 403, ['Content-Type' => 'text/html; charset=utf-8']);
+        }
+        $grantedScope = implode(' ', $requestedScopes);
 
         $plainCode = $this->randomToken(32);
         Db::name('ad_ai_oauth_codes')->insert([
@@ -107,7 +113,7 @@ class AiOAuth
             'client_id' => (string)$params['client_id'],
             'user_id' => (int)$user->id,
             'redirect_uri' => (string)$params['redirect_uri'],
-            'scope' => self::SCOPE,
+            'scope' => $grantedScope,
             'code_challenge' => (string)$params['code_challenge'],
             'code_challenge_method' => 'S256',
             'expires_at' => date('Y-m-d H:i:s', time() + self::CODE_TTL),
@@ -170,6 +176,12 @@ class AiOAuth
     {
         $user = User::find($userId);
         if (!$user) return $this->oauthError('invalid_grant', 'User no longer exists', 400);
+        $scopes = array_values(array_unique(array_filter(preg_split('/\s+/', trim($scope)))));
+        if (!$this->userCanWriteAds($userId)) {
+            $scopes = array_values(array_filter($scopes, function ($item) { return $item !== self::WRITE_SCOPE; }));
+        }
+        if (!in_array(self::READ_SCOPE, $scopes, true)) $scopes[] = self::READ_SCOPE;
+        $scope = implode(' ', $scopes);
         $now = time();
         $payload = [
             'iss' => 'https://bis.joinaws.xyz',
@@ -210,7 +222,15 @@ class AiOAuth
         if (!$client) return ['error' => 'Unknown OAuth client'];
         $redirectUris = json_decode((string)$client['redirect_uris'], true) ?: [];
         if (!in_array((string)$params['redirect_uri'], $redirectUris, true)) return ['error' => 'redirect_uri is not registered'];
-        return ['client' => $client];
+        $scope = trim((string)($params['scope'] ?? self::READ_SCOPE));
+        $requestedScopes = array_values(array_unique(array_filter(preg_split('/\s+/', $scope))));
+        if (!$requestedScopes) $requestedScopes = [self::READ_SCOPE];
+        $supported = [self::READ_SCOPE, self::WRITE_SCOPE];
+        foreach ($requestedScopes as $requestedScope) {
+            if (!in_array($requestedScope, $supported, true)) return ['error' => 'unsupported scope: ' . $requestedScope];
+        }
+        if (!in_array(self::READ_SCOPE, $requestedScopes, true)) $requestedScopes[] = self::READ_SCOPE;
+        return ['client' => $client, 'scopes' => $requestedScopes];
     }
 
     private function authorizationPage(array $params, array $client, string $error = ''): string
@@ -221,7 +241,25 @@ class AiOAuth
         }
         $errorHtml = $error ? '<div class="error">' . $this->e($error) . '</div>' : '';
         $clientName = $this->e((string)($client['client_name'] ?? 'AI Assistant'));
-        return '<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>连接 Xmanmobi</title><style>body{margin:0;background:#f4f6f8;color:#17202a;font-family:Arial,"Microsoft YaHei",sans-serif}.box{width:min(420px,calc(100% - 32px));margin:8vh auto;background:#fff;border:1px solid #dfe3e8;border-radius:8px;padding:28px;box-sizing:border-box}h1{font-size:22px;margin:0 0 8px}p{color:#56616f;line-height:1.6}.scope{background:#f7f8fa;border-left:3px solid #1677ff;padding:12px;margin:18px 0}label{display:block;font-size:14px;margin:14px 0 6px}input[type=text],input[type=password]{width:100%;height:40px;border:1px solid #c8ced6;border-radius:4px;padding:0 10px;box-sizing:border-box}.actions{display:flex;gap:10px;margin-top:22px}button{height:40px;border-radius:4px;border:1px solid #c8ced6;padding:0 18px;background:#fff;cursor:pointer}.primary{border-color:#1677ff;background:#1677ff;color:#fff;flex:1}.error{background:#fff1f0;color:#b42318;padding:10px;border-radius:4px;margin:12px 0}</style></head><body><main class="box"><h1>连接 Xmanmobi</h1><p><strong>' . $clientName . '</strong> 请求读取你的广告分析数据。</p><div class="scope">允许查看 Facebook 和 Google 广告表现、指标及诊断建议。不会创建、编辑或删除广告。</div>' . $errorHtml . '<form method="post" action="/oauth/authorize">' . $hidden . '<label>Xmanmobi 用户名</label><input name="username" type="text" autocomplete="username" required><label>密码</label><input name="password" type="password" autocomplete="current-password" required><div class="actions"><button type="submit" name="decision" value="deny" formnovalidate>取消</button><button class="primary" type="submit" name="decision" value="allow">登录并允许</button></div></form></main></body></html>';
+        $requested = preg_split('/\s+/', trim((string)($params['scope'] ?? self::READ_SCOPE)));
+        $writeRequested = in_array(self::WRITE_SCOPE, $requested, true);
+        $writeHtml = $writeRequested
+            ? '<div class="scope write"><strong>修改权限</strong><br>允许在你明确确认后修改已授权广告的预算和启停状态。每次操作都会记录审计日志。</div>'
+            : '<div class="scope">当前仅申请只读权限，不会修改广告。</div>';
+        return '<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>连接 Xmanmobi</title><style>body{margin:0;background:#f4f6f8;color:#17202a;font-family:Arial,"Microsoft YaHei",sans-serif}.box{width:min(460px,calc(100% - 32px));margin:8vh auto;background:#fff;border:1px solid #dfe3e8;border-radius:8px;padding:28px;box-sizing:border-box}h1{font-size:22px;margin:0 0 8px}p{color:#56616f;line-height:1.6}.scope{background:#f7f8fa;border-left:3px solid #1677ff;padding:12px;margin:12px 0;line-height:1.6}.scope.write{background:#fff7e6;border-color:#d97706;color:#7c2d12}label{display:block;font-size:14px;margin:14px 0 6px}input[type=text],input[type=password]{width:100%;height:40px;border:1px solid #c8ced6;border-radius:4px;padding:0 10px;box-sizing:border-box}.actions{display:flex;gap:10px;margin-top:22px}button{height:40px;border-radius:4px;border:1px solid #c8ced6;padding:0 18px;background:#fff;cursor:pointer}.primary{border-color:#1677ff;background:#1677ff;color:#fff;flex:1}.error{background:#fff1f0;color:#b42318;padding:10px;border-radius:4px;margin:12px 0}</style></head><body><main class="box"><h1>连接 Xmanmobi</h1><p><strong>' . $clientName . '</strong> 请求连接你的广告数据。</p><div class="scope"><strong>读取权限</strong><br>查看 Facebook 和 Google 广告表现、指标及诊断建议。</div>' . $writeHtml . $errorHtml . '<form method="post" action="/oauth/authorize">' . $hidden . '<label>Xmanmobi 用户名</label><input name="username" type="text" autocomplete="username" required><label>密码</label><input name="password" type="password" autocomplete="current-password" required><div class="actions"><button type="submit" name="decision" value="deny" formnovalidate>取消</button><button class="primary" type="submit" name="decision" value="allow">登录并允许</button></div></form></main></body></html>';
+    }
+
+    private function userCanWriteAds(int $userId): bool
+    {
+        $roles = Db::name('sys_user_role')->alias('ur')->join('sys_role r', 'r.id=ur.role_id')
+            ->where('ur.user_id', $userId)->field('r.id,r.value,r.type,r.name')->select()->toArray();
+        foreach ($roles as $role) {
+            $value = strtolower((string)($role['value'] ?? ''));
+            $type = strtolower((string)($role['type'] ?? ''));
+            if (in_array($value, ['admin', 'super_admin', 'superadmin'], true) || in_array($type, ['admin', 'super_admin', 'superadmin'], true)) return true;
+            if (Db::name('sys_role_permission')->where('role_id', $role['id'])->where('permission_code', 'deliver.ad.write')->count()) return true;
+        }
+        return false;
     }
 
     private function errorPage(string $message): string

@@ -42,10 +42,10 @@ try {
     if (!result.tools.some((tool) => tool.name === 'analyze_ad_creatives')) {
       throw new Error('analyze_ad_creatives was not registered over HTTP');
     }
-    for (const name of ['list_customers', 'list_delivery_projects', 'get_ad_overview', 'list_products', 'get_campaign_performance', 'compare_ad_periods', 'analyze_google_search_terms', 'list_ad_accounts', 'get_ad_group_performance', 'get_ad_performance', 'get_google_keyword_performance', 'analyze_conversion_funnel', 'check_data_quality']) {
+    for (const name of ['list_customers', 'list_delivery_projects', 'get_ad_overview', 'list_products', 'get_campaign_performance', 'compare_ad_periods', 'analyze_google_search_terms', 'list_ad_accounts', 'get_ad_group_performance', 'get_ad_performance', 'get_google_keyword_performance', 'analyze_conversion_funnel', 'check_data_quality', 'propose_ad_change', 'execute_ad_change', 'list_ad_change_audit']) {
       if (!result.tools.some((tool) => tool.name === name)) throw new Error(`${name} was not registered over HTTP`);
     }
-    if (result.tools.length !== 15) throw new Error(`Expected 15 HTTP tools, received ${result.tools.length}`);
+    if (result.tools.length !== 18) throw new Error(`Expected 18 HTTP tools, received ${result.tools.length}`);
     console.log('HTTP smoke test passed: authentication and MCP initialization work.');
   } finally {
     await client.close();

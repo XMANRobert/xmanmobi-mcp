@@ -1,6 +1,6 @@
-# Write-action security design
+# Implemented write-action security design
 
-The public release is intentionally read-only. Budget changes, campaign status changes, and campaign creation should be introduced as a separate capability after the read-only plugin has stable review evidence.
+Version 1.2 implements narrow budget and delivery-status changes behind a separate OAuth scope, role permission, proposal, explicit confirmation, stale-state check, idempotent execution claim, and audit log. Campaign creation remains out of scope.
 
 ## Required separation
 
@@ -21,13 +21,14 @@ The public release is intentionally read-only. Budget changes, campaign status c
 7. Execute once using the idempotency key.
 8. Store requester, approver, before/after values, platform response, timestamp, and rollback guidance.
 
-## Initial write-tool scope
+## Implemented write-tool scope
 
-Start with two narrow tools:
+The public MCP exposes three narrow tools:
 
-- `propose_campaign_budget_change`: read-only proposal generation.
-- `execute_campaign_budget_change`: write operation requiring `ad_management:write` and a valid proposal ID.
+- `propose_ad_change`: creates a 15-minute proposal and one-time confirmation token without changing the platform.
+- `execute_ad_change`: executes one explicitly confirmed proposal with `ad_management:write` and `deliver.ad.write`.
+- `list_ad_change_audit`: returns the connected user's proposal and execution history.
 
-Add pause/resume only after budget updates have audit evidence. Campaign creation should be last because it requires substantially more validation: objective, billing account, conversion event, geography, audience, creative, destination URL, budget, schedule, and platform policy checks.
+Google supports campaign daily budget and enabled/paused status. Facebook supports campaign or ad-set daily budget and campaign/ad-set/ad active or paused status. Budget changes above 50% are blocked. Campaign creation should be last because it requires substantially more validation: objective, billing account, conversion event, geography, audience, creative, destination URL, budget, schedule, and platform policy checks.
 
 Do not expose unrestricted “auto optimize all campaigns” tools. Scheduled automation belongs in the BI backend with administrator-configured limits, kill switches, per-customer opt-in, and an audit queue.
