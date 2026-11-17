@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "xmanmobi",
-  "version": "1.2.0",
-  "description": "Google and Meta advertising analytics with confirmed, audited budget and status changes.",
+  "version": "1.3.0",
+  "description": "Advertising analytics, audited changes, and confirmed paused Google Ads creation.",
   "author": {
     "name": "Advan Hong Kong Technology Limited",
     "email": "liuchang@advan-hk.com",
@@ -21,7 +21,7 @@
       "interface": {
         "displayName": "Xmanmobi",
         "shortDescription": "Analyze Google and Meta ads",
-        "longDescription": "Xmanmobi analyzes authorized Google Ads and Facebook Ads reporting data and supports guarded budget and delivery-status changes. Every supported change requires a short-lived proposal, explicit user confirmation, server-side permission checks, stale-state validation, and an audit log. Access is limited to customers assigned to the connected Xmanmobi account. Campaign creation, deletion, targeting, creative, billing, and unrestricted automation are not supported.",
+        "longDescription": "Xmanmobi analyzes authorized Google Ads and Facebook Ads reporting data, supports guarded budget and delivery-status changes, and creates confirmed Google Search resources in paused state. Every write requires explicit confirmation, server-side permission checks, validation, and an audit trail. Access is limited to customers assigned to the connected Xmanmobi account. Deletion, billing changes, automatic enabling, and unrestricted MCP automation are not supported.",
         "developerName": "Advan Hong Kong Technology Limited",
         "category": "Productivity",
         "capabilities": [
@@ -30,7 +30,8 @@
           "Creative performance analysis",
           "Conversion funnel analysis",
           "Advertising data quality checks",
-          "Confirmed and audited budget or status changes"
+          "Confirmed and audited budget or status changes",
+          "Paused Google Search campaign, ad group, ad, keyword, and targeting creation"
         ],
         "websiteURL": "https://ai.xmanmobi.com/mcp.html",
         "supportURL": "https://ai.xmanmobi.com/mcp-support.html",

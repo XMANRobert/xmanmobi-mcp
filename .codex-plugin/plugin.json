@@ -1,6 +1,6 @@
 {
   "name": "xmanmobi",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Google and Meta ad analytics with confirmed, audited budget and status changes.",
   "author": {
     "name": "Advan Hong Kong Technology Limited",
@@ -19,7 +19,7 @@
   "interface": {
     "displayName": "Xmanmobi",
     "shortDescription": "Analyze Google and Meta ads",
-    "longDescription": "Xmanmobi analyzes authorized Google Ads and Facebook Ads reporting data and supports guarded budget and delivery-status changes. Every change requires a proposal, explicit confirmation, permission checks, and an audit record. Campaign creation, deletion, targeting, creative, billing, and unrestricted automation are not supported.",
+    "longDescription": "Xmanmobi analyzes authorized Google Ads and Facebook Ads reporting data, supports guarded budget and status changes, and creates confirmed Google Search resources in paused state. Every write requires explicit confirmation, permission checks, validation, and an audit record. Deletion, billing changes, automatic enabling, and unrestricted MCP automation are not supported.",
     "developerName": "Advan Hong Kong Technology Limited",
     "category": "Productivity",
     "capabilities": [

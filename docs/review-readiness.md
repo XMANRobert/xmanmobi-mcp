@@ -12,7 +12,7 @@ Code and manifests alone do not establish that a hosted plugin works. Complete t
 
 ## Simulated data
 
-Provide at least 30 days for both Google and Meta, including:
+Provide at least 30 days for Google. Add Meta only when its developer permissions are available, including:
 
 - Two ad accounts and delivery projects.
 - Campaigns, ad groups/ad sets, ads, creatives, Google keywords, and search terms.
@@ -46,5 +46,7 @@ Record one continuous walkthrough showing:
 5. The three negative cases.
 6. One proposal that visibly does not change the platform, followed by a separate explicit confirmation, execution, and audit lookup.
 7. Evidence that unconfirmed, over-limit, unsupported, and cross-customer write requests are refused.
+
+Use the executable checklist, prompts, simulated-data contract, and report template in [`review-kit/`](../review-kit/README.md).
 
 Keep the recording URL accessible to reviewers without requesting access. Do not expose passwords, browser-stored tokens, real customer names, or developer tools containing authorization headers.

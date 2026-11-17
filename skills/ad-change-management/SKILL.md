@@ -14,4 +14,4 @@ Use the guarded two-step workflow. Never call `execute_ad_change` in the same us
 5. Report the actual execution result and audit status. Never claim success from the proposal response.
 6. Use `list_ad_change_audit` when the user asks what changed or when an outcome needs verification.
 
-Do not reinterpret a general request such as "optimize my account" as authorization to execute changes. Do not split a blocked budget increase into smaller proposals to bypass the safety limit. Unsupported creation, deletion, targeting, keyword, creative, billing, or bulk changes must remain recommendations only.
+Do not reinterpret a general request such as "optimize my account" as authorization to execute changes. Do not split a blocked budget increase into smaller proposals to bypass the safety limit. For confirmed paused Google resource creation, use the `google-ads-operations` skill. Deletion, billing, automatic enabling, and unrestricted bulk changes remain unsupported.

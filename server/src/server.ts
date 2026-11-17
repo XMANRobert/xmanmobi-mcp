@@ -330,6 +330,67 @@ export function createXmanmobiServer(defaultToken?: string) {
     return callAdvanbi('/ai-tools/ad-actions/audit-logs', input, token);
   });
 
+  const confirmedGoogleCreate = (path: string) => async (input: Record<string, unknown>, extra: any) => {
+    const token = extra.authInfo?.token || defaultToken?.trim();
+    if (!token) return toolError('A Xmanmobi Bearer token is required.');
+    if (input.confirm !== true) return toolError('confirm=true is required after the user reviews the exact paused resource to create.');
+    const payload = { ...input }; delete payload.confirm;
+    return callAdvanbiJson(path, 'POST', payload, token);
+  };
+
+  server.registerTool('create_google_search_campaign', {
+    title: 'Create a paused Google Search campaign',
+    description: 'Create one Google Search campaign in PAUSED state after explicit confirmation. This never enables delivery.',
+    annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: true },
+    inputSchema: {
+      account_id: z.coerce.number().int().positive().describe('Authorized local Google Ads account ID.'), name: z.string().min(1).max(255).describe('Campaign name.'),
+      daily_budget: z.coerce.number().positive().max(100000).describe('Daily budget in account currency.'), channel_type: z.literal('SEARCH').default('SEARCH').describe('Campaign channel; currently SEARCH only.'),
+      confirm: z.literal(true).describe('Must be true only after explicit user confirmation.'),
+    },
+  }, confirmedGoogleCreate('/google-ads-bi/campaigns'));
+
+  server.registerTool('create_google_ad_group', {
+    title: 'Create a paused Google ad group', description: 'Create one paused Search ad group under an authorized local campaign.',
+    annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: true },
+    inputSchema: {
+      campaign_id: z.coerce.number().int().positive().describe('Authorized local campaign ID.'), name: z.string().min(1).max(255).describe('Ad group name.'),
+      type: z.enum(['SEARCH_STANDARD', 'SEARCH_DYNAMIC_ADS']).default('SEARCH_STANDARD').describe('Google Search ad group type.'),
+      cpc_bid: z.coerce.number().positive().max(100000).optional().describe('Optional CPC bid in account currency.'), confirm: z.literal(true).describe('Must be true only after explicit user confirmation.'),
+    },
+  }, confirmedGoogleCreate('/google-ads-bi/ad-groups'));
+
+  server.registerTool('create_google_responsive_search_ad', {
+    title: 'Create a paused Google responsive search ad',
+    description: 'Create a paused replacement ad with new creative text and HTTPS landing page. Use this instead of mutating historical ad creative.',
+    annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: true },
+    inputSchema: {
+      ad_group_id: z.coerce.number().int().positive().describe('Authorized local ad group ID.'), name: z.string().min(1).max(255).describe('Ad name.'),
+      headlines: z.array(z.string().min(1).max(30)).min(3).max(15).describe('Three to fifteen headlines, up to 30 characters each.'), descriptions: z.array(z.string().min(1).max(90)).min(2).max(4).describe('Two to four descriptions, up to 90 characters each.'),
+      final_url: z.string().url().startsWith('https://').describe('HTTPS landing-page URL.'), path1: z.string().max(15).optional().describe('Optional first display path.'), path2: z.string().max(15).optional().describe('Optional second display path.'),
+      confirm: z.literal(true).describe('Must be true only after explicit user confirmation.'),
+    },
+  }, confirmedGoogleCreate('/google-ads-bi/ads/responsive-search'));
+
+  server.registerTool('create_google_keyword', {
+    title: 'Create a paused Google keyword', description: 'Create a paused keyword. Keyword text or match-type changes use a paused replacement keyword.',
+    annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: true },
+    inputSchema: {
+      ad_group_id: z.coerce.number().int().positive().describe('Authorized local ad group ID.'), keyword_text: z.string().min(1).max(80).describe('Keyword text.'),
+      match_type: z.enum(['BROAD', 'PHRASE', 'EXACT']).describe('Keyword match type.'), cpc_bid: z.coerce.number().positive().max(100000).optional().describe('Optional CPC bid in account currency.'),
+      negative: z.boolean().default(false).describe('Whether to create a negative keyword.'), confirm: z.literal(true).describe('Must be true only after explicit user confirmation.'),
+    },
+  }, confirmedGoogleCreate('/google-ads-bi/keywords'));
+
+  server.registerTool('create_google_campaign_targeting', {
+    title: 'Add Google campaign targeting', description: 'Add one location, language, or device criterion to an authorized campaign after explicit confirmation.',
+    annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: true },
+    inputSchema: {
+      campaign_id: z.coerce.number().int().positive().describe('Authorized local campaign ID.'), criterion_type: z.enum(['LOCATION', 'LANGUAGE', 'DEVICE']).describe('Targeting criterion type.'),
+      target_id: z.string().min(1).describe('Google geo/language ID or device enum.'), target_name: z.string().max(255).optional().describe('Optional human-readable target name.'), negative: z.boolean().default(false).describe('Exclude a location when true.'),
+      bid_modifier: z.coerce.number().positive().max(10).optional().describe('Optional bid modifier.'), confirm: z.literal(true).describe('Must be true only after explicit user confirmation.'),
+    },
+  }, confirmedGoogleCreate('/google-ads-bi/targeting'));
+
   return server;
 }
 

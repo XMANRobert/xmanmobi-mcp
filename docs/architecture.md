@@ -19,6 +19,8 @@ Private Xmanmobi BI API
         +-- Google Ads reporting store
         +-- Meta Ads reporting store
         +-- material and conversion data
+        +-- audited Google Ads creation/change batches
+        +-- bounded automation policies and global kill switch
 ```
 
 ## Public components

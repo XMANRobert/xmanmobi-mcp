@@ -1,0 +1,15 @@
+{
+  "customer": "Xmanmobi Review Demo",
+  "label": "SIMULATED REVIEW DATA - NOT REAL CUSTOMER DATA",
+  "history_days": 30,
+  "platforms": ["google"],
+  "required_scenarios": [
+    {"code": "efficient", "campaign": "REVIEW_Search_Efficient", "signal": "stable conversions and ROAS above target"},
+    {"code": "inefficient", "campaign": "REVIEW_Search_HighCPA", "signal": "high spend and CPA above target"},
+    {"code": "zero_conversion", "campaign": "REVIEW_Search_ZeroConversion", "signal": "spend above pause threshold with zero conversions"},
+    {"code": "stale_data", "campaign": "REVIEW_Search_Stale", "signal": "last report older than configured freshness limit"}
+  ],
+  "hierarchy": {"accounts": 1, "campaigns_min": 4, "ad_groups_per_campaign_min": 2, "ads_per_group_min": 2, "keywords_min": 12, "search_terms_min": 20},
+  "metrics": ["impressions", "clicks", "spend", "conversions", "conversion_value"],
+  "privacy": {"real_personal_data": false, "real_customer_names": false, "real_tokens": false}
+}

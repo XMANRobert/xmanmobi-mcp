@@ -15,7 +15,7 @@ This repository includes the MCP gateway source, OAuth reference implementation,
 - Review conversion funnels and reporting freshness.
 - Diagnose campaign performance without changing advertising resources.
 
-The 15 analysis tools are read-only. Three guarded tools handle proposals, confirmed execution, and audit history. Campaign creation, deletion, targeting, creative, billing, and unrestricted automation are not supported.
+The 15 analysis tools are read-only. Three guarded tools handle proposals, confirmed execution, and audit history. Five confirmed Google tools create paused Search Campaigns, Ad Groups, responsive search ads, keywords, and Campaign targeting. Deletion, billing changes, automatic enabling, and unrestricted MCP automation are not supported.
 
 ## Connect
 
@@ -74,6 +74,7 @@ More examples are available in [docs/examples.md](docs/examples.md).
 - `ad-data-quality-audit`: access, freshness, completeness, consistency, and attribution checks.
 - `get-started`: connection and first-analysis workflow.
 - `ad-change-management`: guarded proposal, confirmation, execution, and audit workflow.
+- `google-ads-operations`: paused creation, replacement creative/landing-page workflow, targeting, automation safeguards, and rollback SOP.
 
 The methods avoid universal CPA/ROAS thresholds. They use the customer's objective when available and explicitly report insufficient evidence.
 
@@ -99,6 +100,11 @@ The methods avoid universal CPA/ROAS thresholds. They use the customer's objecti
 | `propose_ad_change` | Create a short-lived budget/status proposal without changing the platform |
 | `execute_ad_change` | Execute one explicitly confirmed proposal |
 | `list_ad_change_audit` | Review proposal, rejection, execution, and before/after audit records |
+| `create_google_search_campaign` | Create a confirmed Google Search Campaign in paused state |
+| `create_google_ad_group` | Create a confirmed paused Ad Group |
+| `create_google_responsive_search_ad` | Create a confirmed paused replacement ad and landing page |
+| `create_google_keyword` | Create a confirmed paused keyword or negative keyword |
+| `create_google_campaign_targeting` | Add confirmed location, language, or device targeting |
 
 ## Repository scope
 
@@ -106,7 +112,7 @@ This public repository contains:
 
 - Plugin and MCP manifests.
 - The onboarding skill.
-- Three advertising methodology skills with diagnostic rules and SOPs.
+- Four advertising methodology skills with diagnostic rules, launch gates, optimization SOPs, and rollback rules.
 - TypeScript MCP gateway source and smoke tests.
 - A ThinkPHP OAuth 2.1 + PKCE reference implementation.
 - A guarded ThinkPHP advertising-change reference and audit schema.
@@ -119,6 +125,7 @@ The private BI business API, advertising-platform credentials, customer data, an
 
 - [Write-action security design](docs/write-actions-roadmap.md)
 - [Review account, simulated data, test report, and recording checklist](docs/review-readiness.md)
+- [Ready-to-use reviewer package](review-kit/README.md)
 
 ## Privacy and security
 

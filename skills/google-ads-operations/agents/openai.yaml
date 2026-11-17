@@ -1,0 +1,4 @@
+interface:
+  display_name: "Google Ads Operations"
+  short_description: "Create and optimize Google Ads safely"
+  default_prompt: "Use Xmanmobi to prepare a paused Google Ads campaign structure and show the exact preview before creating anything."
